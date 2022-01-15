@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Udacity - jose.morales@udacity.com",
+  "author": "Sergio Valderrama",
   "license": "ISC",
   "dependencies": {
     "bitcoinjs-lib": "^4.0.3",
@@ -16,5 +16,8 @@
     "express": "^4.16.4",
     "hex2ascii": "0.0.3",
     "morgan": "^1.9.1"
+  },
+  "engines": {
+    "node": "=10.22.9"
   }
 }
