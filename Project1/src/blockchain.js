@@ -127,6 +127,10 @@ class Blockchain {
   submitStar = (address, message, signature, star) => {
     return new Promise(async (resolve, reject) => {
       try {
+        const errArray = await this.validateChain();
+        if (errArray.length > 0) {
+          throw new Error("Block chain is invalid, cannot add more blocks");
+        }
         const timeFromMsg = parseInt(message.split(":")[1]);
         const currentTime = parseInt(this.getTimeStampString());
         if (currentTime - timeFromMsg > 300) {
