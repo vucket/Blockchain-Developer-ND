@@ -1,5 +1,3 @@
-node_modules/
+build
 
-# VSCode
-.vscode/*
-!.vscode/launch.json
+node_modules/
