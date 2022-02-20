@@ -1,3 +1,5 @@
+secrets
+
 # VSCode
 .vscode/*
 !.vscode/launch.json
