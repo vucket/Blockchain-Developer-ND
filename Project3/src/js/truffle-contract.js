@@ -1599,34 +1599,34 @@
           };
 
           /*
-
-  var zeros = [];
-  var groupSizes = [];
-  var groupBases = [];
-
-  var s = '';
-  var i = -1;
-  while (++i < BN.wordSize) {
-    zeros[i] = s;
-    s += '0';
-  }
-  groupSizes[0] = 0;
-  groupSizes[1] = 0;
-  groupBases[0] = 0;
-  groupBases[1] = 0;
-  var base = 2 - 1;
-  while (++base < 36 + 1) {
-    var groupSize = 0;
-    var groupBase = 1;
-    while (groupBase < (1 << BN.wordSize) / base) {
-      groupBase *= base;
-      groupSize += 1;
+  
+    var zeros = [];
+    var groupSizes = [];
+    var groupBases = [];
+  
+    var s = '';
+    var i = -1;
+    while (++i < BN.wordSize) {
+      zeros[i] = s;
+      s += '0';
     }
-    groupSizes[base] = groupSize;
-    groupBases[base] = groupBase;
-  }
-
-  */
+    groupSizes[0] = 0;
+    groupSizes[1] = 0;
+    groupBases[0] = 0;
+    groupBases[1] = 0;
+    var base = 2 - 1;
+    while (++base < 36 + 1) {
+      var groupSize = 0;
+      var groupBase = 1;
+      while (groupBase < (1 << BN.wordSize) / base) {
+        groupBase *= base;
+        groupSize += 1;
+      }
+      groupSizes[base] = groupSize;
+      groupBases[base] = groupBase;
+    }
+  
+    */
 
           var zeros = [
             "",
