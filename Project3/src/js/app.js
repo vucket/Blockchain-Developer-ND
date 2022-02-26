@@ -75,7 +75,7 @@ App = {
     // If no injected web3 instance is detected, fall back to Ganache
     else {
       App.web3Provider = new Web3.providers.HttpProvider(
-        "http://localhost:7545"
+        "http://localhost:9545"
       );
     }
 
@@ -166,7 +166,6 @@ App = {
   harvestItem: function (event) {
     event.preventDefault();
     var processId = parseInt($(event.target).data("id"));
-
     App.contracts.SupplyChain.deployed()
       .then(function (instance) {
         return instance.harvestItem(
@@ -176,7 +175,8 @@ App = {
           App.originFarmInformation,
           App.originFarmLatitude,
           App.originFarmLongitude,
-          App.productNotes
+          App.productNotes,
+          { from: App.metamaskAccountID }
         );
       })
       .then(function (result) {
@@ -228,7 +228,7 @@ App = {
 
     App.contracts.SupplyChain.deployed()
       .then(function (instance) {
-        const productPrice = web3.utils.toWei("1", "ether");
+        const productPrice = web3.toWei(1, "ether");
         console.log("productPrice", productPrice);
         return instance.sellItem(App.upc, App.productPrice, {
           from: App.metamaskAccountID,
@@ -249,7 +249,7 @@ App = {
 
     App.contracts.SupplyChain.deployed()
       .then(function (instance) {
-        const walletValue = web3.utils.toWei("3", "ether");
+        const walletValue = web3.toWei(3, "ether");
         return instance.buyItem(App.upc, {
           from: App.metamaskAccountID,
           value: walletValue,
@@ -335,9 +335,6 @@ App = {
   },
 
   fetchItemBufferTwo: function () {
-    ///    event.preventDefault();
-    ///    var processId = parseInt($(event.target).data('id'));
-
     App.contracts.SupplyChain.deployed()
       .then(function (instance) {
         return instance.fetchItemBufferTwo.call(App.upc);
