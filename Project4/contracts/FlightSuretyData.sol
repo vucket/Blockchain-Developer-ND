@@ -62,6 +62,22 @@ contract FlightSuretyData {
         require(isAirlineFunded(airlineAddress), "Airline is not funded");
         _;
     }
+    modifier requireInsuranceIsInactive(address buyer) {
+        require(!insurances[buyer].isActive, "Buyer has already an insurance");
+        _;
+    }
+
+    modifier requireInsuranceIsBought(
+        address buyer,
+        address airline,
+        string memory flightCode
+    ) {
+        require(
+            isInsuranceActive(buyer, airline, flightCode),
+            "Insurance is not active"
+        );
+        _;
+    }
 
     /********************************************************************************************/
     /*                                       UTILITY FUNCTIONS                                  */
@@ -123,6 +139,19 @@ contract FlightSuretyData {
         operatingAirlinesCount;
     }
 
+    function isInsuranceActive(
+        address buyer,
+        address airline,
+        string memory flightCode
+    ) public view requireIsOperational returns (bool) {
+        return (insurances[buyer].isActive &&
+            getFlightKey(
+                insurances[buyer].airline,
+                insurances[buyer].flightCode
+            ) ==
+            getFlightKey(airline, flightCode));
+    }
+
     /********************************************************************************************/
     /*                                     SMART CONTRACT FUNCTIONS                             */
     /********************************************************************************************/
@@ -136,6 +165,21 @@ contract FlightSuretyData {
         bool isFunded;
         uint256 funds;
         address[] approvalVotes;
+    }
+
+    mapping(address => Insurance) private insurances;
+    struct Insurance {
+        bool isActive;
+        address airline;
+        string flightCode;
+        uint256 amount;
+        InsuranceStatus status;
+    }
+
+    enum InsuranceStatus {
+        Bought,
+        Claimed,
+        Refunded
     }
 
     /**
@@ -184,7 +228,20 @@ contract FlightSuretyData {
      * @dev Buy insurance for a flight
      *
      */
-    function buy() external payable {}
+    function buy(
+        address buyer,
+        address airline,
+        string calldata flightCode,
+        uint256 amount
+    ) external payable requireInsuranceIsInactive(buyer) {
+        insurances[buyer] = Insurance(
+            true,
+            airline,
+            flightCode,
+            amount,
+            InsuranceStatus.Bought
+        );
+    }
 
     /**
      *  @dev Credits payouts to insurees
@@ -213,19 +270,11 @@ contract FlightSuretyData {
         );
     }
 
-    function getFlightKey(
-        address airline,
-        string memory flight,
-        uint256 timestamp
-    ) internal pure returns (bytes32) {
-        return keccak256(abi.encodePacked(airline, flight, timestamp));
-    }
-
-    /**
-     * @dev Fallback function for funding smart contract.
-     *
-     */
-    function() external payable {
-        //fund();
+    function getFlightKey(address airline, string memory flight)
+        internal
+        pure
+        returns (bytes32)
+    {
+        return keccak256(abi.encodePacked(airline, flight));
     }
 }

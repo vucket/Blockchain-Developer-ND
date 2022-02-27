@@ -36,14 +36,17 @@ contract FlightSuretyApp {
     // Fee to be paid when registering oracle
     uint256 public constant REGISTRATION_FEE = 1 ether;
     uint256 public constant MIN_FUNDING = 10 ether;
+    uint256 public constant MAX_INSURANCE_VAL = 1 ether;
 
     struct Flight {
         bool isRegistered;
         uint8 statusCode;
         uint256 updatedTimestamp;
         address airline;
+        string flightCode;
     }
-    mapping(bytes32 => Flight) private flights;
+    // Rubric does not specify how to register flights so I will just hardcode the flights
+    mapping(string => Flight) private flights;
 
     /********************************************************************************************/
     /*                                       FUNCTION MODIFIERS                                 */
@@ -79,7 +82,7 @@ contract FlightSuretyApp {
         _;
     }
 
-    modifier requireCallerIsAirline() {
+    modifier requireIsCallerAirline() {
         require(
             flightData.isAirlineRegistered(msg.sender) &&
                 flightData.isAirlineFunded(msg.sender),
@@ -101,6 +104,27 @@ contract FlightSuretyApp {
         _;
     }
 
+    modifier requireNewFlight(string memory flightCode) {
+        require(!flights[flightCode].isRegistered, "Flight already registered");
+        _;
+    }
+
+    modifier requireFlightRegistered(string memory flightCode) {
+        require(flights[flightCode].isRegistered, "Flight is not registered");
+        _;
+    }
+
+    modifier requireAirlineHasFlight(
+        address airline,
+        string memory flightCode
+    ) {
+        require(
+            flights[flightCode].airline == airline,
+            "Flight is not registered"
+        );
+        _;
+    }
+
     /********************************************************************************************/
     /*                                       CONSTRUCTOR                                        */
     /********************************************************************************************/
@@ -112,6 +136,11 @@ contract FlightSuretyApp {
     constructor() public {
         contractOwner = msg.sender;
         flightData = FlightSuretyData(msg.sender);
+        // Register hardcoded flights
+        uint256 defaultStamp = 1645987938346;
+        registerFlight("F1", STATUS_CODE_ON_TIME, defaultStamp);
+        registerFlight("F2", STATUS_CODE_LATE_OTHER, defaultStamp);
+        registerFlight("F3", STATUS_CODE_LATE_AIRLINE, defaultStamp);
     }
 
     /********************************************************************************************/
@@ -154,7 +183,9 @@ contract FlightSuretyApp {
         uint256 timestamp
     );
 
-    event AirlineFunded(address indexed airlineAddress, uint256 amount);
+    event AirlineRegistered(address airlineAddress);
+    event AirlineFunded(address airlineAddress, uint256 amount);
+    event InsuranceBought(address airlineAddress, string buyer, uint256 amount);
 
     /********************************************************************************************/
     /*                                     SMART CONTRACT FUNCTIONS                             */
@@ -167,7 +198,7 @@ contract FlightSuretyApp {
     function registerAirline(address airlineAddress)
         external
         requireIsOperational
-        requireCallerIsAirline
+        requireIsCallerAirline
         requireNewAirline(airlineAddress)
         returns (bool success, uint256 votes)
     {
@@ -192,6 +223,9 @@ contract FlightSuretyApp {
                 votes = currentVotes;
             }
         }
+        if (success) {
+            emit AirlineRegistered(airlineAddress);
+        }
         return (success, votes);
     }
 
@@ -211,7 +245,24 @@ contract FlightSuretyApp {
      * @dev Register a future flight for insuring.
      *
      */
-    function registerFlight() external view requireIsOperational {}
+    function registerFlight(
+        string memory flightCode,
+        uint8 statusCode,
+        uint256 timeStamp
+    )
+        public
+        requireIsOperational
+        requireIsCallerAirline
+        requireNewFlight(flightCode)
+    {
+        flights[flightCode] = Flight(
+            true,
+            statusCode,
+            timeStamp,
+            msg.sender,
+            flightCode
+        );
+    }
 
     /**
      * @dev Called after oracle has updated flight status
@@ -219,29 +270,58 @@ contract FlightSuretyApp {
      */
     function processFlightStatus(
         address airline,
-        string memory flight,
+        string memory flightCode,
         uint256 timestamp,
         uint8 statusCode
-    ) internal view requireIsOperational {}
+    )
+        internal
+        requireIsOperational
+        requireFlightRegistered(flightCode)
+        requireAirlineHasFlight(airline, flightCode)
+    {
+        flights[flightCode].updatedTimestamp = timestamp;
+        flights[flightCode].statusCode = statusCode;
+    }
+
+    function buyInsurance(address airline, string calldata flightCode)
+        external
+        payable
+        requireIsOperational
+        requireFlightRegistered(flightCode)
+        requireAirlineHasFlight(airline, flightCode)
+    {
+        require(
+            msg.value <= MAX_INSURANCE_VAL,
+            "You can buy max 1 eth value for insurance"
+        );
+        contractOwner.transfer(msg.value);
+        flightData.buy(msg.sender, airline, flightCode, msg.value);
+        emit InsuranceBought(msg.sender, flightCode, msg.value);
+    }
 
     // Generate a request for oracles to fetch flight information
     function fetchFlightStatus(
         address airline,
-        string calldata flight,
+        string calldata flightCode,
         uint256 timestamp
-    ) external requireIsOperational {
+    )
+        external
+        requireIsOperational
+        requireFlightRegistered(flightCode)
+        requireAirlineHasFlight(airline, flightCode)
+    {
         uint8 index = getRandomIndex(msg.sender);
 
         // Generate a unique key for storing the request
         bytes32 key = keccak256(
-            abi.encodePacked(index, airline, flight, timestamp)
+            abi.encodePacked(index, airline, flightCode, timestamp)
         );
         oracleResponses[key] = ResponseInfo({
             requester: msg.sender,
             isOpen: true
         });
 
-        emit OracleRequest(index, airline, flight, timestamp);
+        emit OracleRequest(index, airline, flightCode, timestamp);
     }
 
     // region ORACLE MANAGEMENT
