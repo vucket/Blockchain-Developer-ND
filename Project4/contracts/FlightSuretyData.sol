@@ -20,8 +20,9 @@ contract FlightSuretyData {
      * @dev Constructor
      *      The deploying account becomes contractOwner
      */
-    constructor() public {
-        contractOwner = msg.sender;
+    constructor(address payable contractAddress) public {
+        contractOwner = contractAddress;
+        airlines[contractAddress] = Airline(true, false, 0, new address[](0));
     }
 
     /********************************************************************************************/
@@ -49,6 +50,19 @@ contract FlightSuretyData {
         _;
     }
 
+    modifier requireIsAirlineRegistered(address airlineAddress) {
+        require(
+            isAirlineRegistered(airlineAddress),
+            "Airline is not registered"
+        );
+        _;
+    }
+
+    modifier requireIsAirlineFunded(address airlineAddress) {
+        require(isAirlineFunded(airlineAddress), "Airline is not funded");
+        _;
+    }
+
     /********************************************************************************************/
     /*                                       UTILITY FUNCTIONS                                  */
     /********************************************************************************************/
@@ -71,16 +85,100 @@ contract FlightSuretyData {
         operational = mode;
     }
 
+    function isNewAirline(address airlineAddress)
+        external
+        view
+        requireIsOperational
+        returns (bool)
+    {
+        return
+            !airlines[airlineAddress].isRegistered &&
+            !airlines[airlineAddress].isFunded;
+    }
+
+    function isAirlineRegistered(address airlineAddress)
+        public
+        view
+        requireIsOperational
+        returns (bool)
+    {
+        return airlines[airlineAddress].isRegistered;
+    }
+
+    function isAirlineFunded(address airlineAddress)
+        public
+        view
+        requireIsOperational
+        returns (bool)
+    {
+        return airlines[airlineAddress].isFunded;
+    }
+
+    function getRegisteredAirlines()
+        public
+        view
+        requireIsOperational
+        returns (uint256)
+    {
+        operatingAirlinesCount;
+    }
+
     /********************************************************************************************/
     /*                                     SMART CONTRACT FUNCTIONS                             */
     /********************************************************************************************/
+
+    mapping(address => Airline) private airlines;
+
+    uint256 private operatingAirlinesCount = 0;
+
+    struct Airline {
+        bool isRegistered;
+        bool isFunded;
+        uint256 funds;
+        address[] approvalVotes;
+    }
 
     /**
      * @dev Add an airline to the registration queue
      *      Can only be called from FlightSuretyApp contract
      *
      */
-    function registerAirline() external pure {}
+    function registerAirline(address airlineAddress)
+        external
+        requireIsOperational
+        requireIsAirlineRegistered(msg.sender)
+        requireIsAirlineFunded(msg.sender)
+    {
+        airlines[airlineAddress] = Airline(
+            true,
+            false,
+            0,
+            airlines[airlineAddress].approvalVotes
+        );
+        operatingAirlinesCount++;
+    }
+
+    function voteForAirline(address airlineAddress, address voter)
+        external
+        requireIsOperational
+        returns (uint256 length)
+    {
+        bool isDuplicate = false;
+        for (
+            uint256 i = 0;
+            i < airlines[airlineAddress].approvalVotes.length;
+            i++
+        ) {
+            if (airlines[airlineAddress].approvalVotes[i] == msg.sender) {
+                isDuplicate = true;
+                break;
+            }
+        }
+        require(!isDuplicate, "Duplicate vote");
+
+        airlines[airlineAddress].approvalVotes.push(voter);
+        return airlines[airlineAddress].approvalVotes.length;
+    }
 
     /**
      * @dev Buy insurance for a flight
@@ -104,7 +202,16 @@ contract FlightSuretyData {
      *      resulting in insurance payouts, the contract should be self-sustaining
      *
      */
-    function fund() public payable {}
+    function fund(address airlineAddress, uint256 amount)
+        external
+        requireIsOperational
+        requireIsAirlineRegistered(airlineAddress)
+    {
+        airlines[airlineAddress].isFunded = true;
+        airlines[airlineAddress].funds = airlines[airlineAddress].funds.add(
+            amount
+        );
+    }
 
     function getFlightKey(
         address airline,
@@ -119,6 +226,6 @@ contract FlightSuretyData {
      *
      */
     function() external payable {
-        fund();
+        //fund();
     }
 }
