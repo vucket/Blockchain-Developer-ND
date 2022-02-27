@@ -135,12 +135,30 @@ contract FlightSuretyApp {
      */
     constructor() public {
         contractOwner = msg.sender;
-        flightData = FlightSuretyData(msg.sender);
         // Register hardcoded flights
+
         uint256 defaultStamp = 1645987938346;
-        registerFlight("F1", STATUS_CODE_ON_TIME, defaultStamp);
-        registerFlight("F2", STATUS_CODE_LATE_OTHER, defaultStamp);
-        registerFlight("F3", STATUS_CODE_LATE_AIRLINE, defaultStamp);
+        flights["F1"] = Flight(
+            true,
+            STATUS_CODE_ON_TIME,
+            defaultStamp,
+            msg.sender,
+            "F1"
+        );
+        flights["F2"] = Flight(
+            true,
+            STATUS_CODE_LATE_OTHER,
+            defaultStamp,
+            msg.sender,
+            "F2"
+        );
+        flights["F3"] = Flight(
+            true,
+            STATUS_CODE_LATE_AIRLINE,
+            defaultStamp,
+            msg.sender,
+            "F3"
+        );
     }
 
     /********************************************************************************************/

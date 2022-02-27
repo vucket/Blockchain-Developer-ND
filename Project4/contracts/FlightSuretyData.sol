@@ -20,9 +20,9 @@ contract FlightSuretyData {
      * @dev Constructor
      *      The deploying account becomes contractOwner
      */
-    constructor(address payable contractAddress) public {
-        contractOwner = contractAddress;
-        airlines[contractAddress] = Airline(true, false, 0, new address[](0));
+    constructor() public {
+        contractOwner = msg.sender;
+        airlines[contractOwner] = Airline(true, false, 0, new address[](0));
     }
 
     /********************************************************************************************/
@@ -95,7 +95,8 @@ contract FlightSuretyData {
         _;
     }
     modifier requireAirlineHasFunds(address buyer) {
-        uint256 amount = insurances[buyer].amount.mul(15).div(10);
+        uint256 basePay = insurances[buyer].amount;
+        uint256 amount = basePay.mul(15).div(10);
         require(
             airlines[insurances[buyer].airline].funds >= amount,
             "Airline has not enough funds"
@@ -103,7 +104,8 @@ contract FlightSuretyData {
         _;
     }
     modifier requireOwnerHasFunds(address buyer) {
-        uint256 amount = insurances[buyer].amount.mul(15).div(10);
+        uint256 basePay = insurances[buyer].amount;
+        uint256 amount = basePay.mul(15).div(10);
         require(
             airlines[insurances[buyer].airline].funds >= amount,
             "Airline has not enough funds"
@@ -289,7 +291,8 @@ contract FlightSuretyData {
         requireInsuranceIsBought(buyer)
         requireAirlineHasFunds(buyer)
     {
-        airlines[airline].funds.sub(insurances[buyer].amount.mul(15).div(10));
+        uint256 basePay = insurances[buyer].amount;
+        airlines[airline].funds.sub(basePay.mul(15).div(10));
         insurances[buyer].status = InsuranceStatus.Claimed;
     }
 
@@ -309,7 +312,8 @@ contract FlightSuretyData {
         requireOwnerHasFunds(buyer)
         requireContractOwner
     {
-        uint256 amount = insurances[buyer].amount.mul(15).div(10);
+        uint256 basePay = insurances[buyer].amount;
+        uint256 amount = basePay.mul(15).div(10);
         buyer.transfer(amount);
         insurances[buyer].status = InsuranceStatus.Refunded;
     }
