@@ -16,7 +16,7 @@ import "./flightsurety.css";
 
     // User-submitted transaction
     DOM.elid("submit-oracle").addEventListener("click", () => {
-      let flight = DOM.elid("flight-number").value;
+      const flight = DOM.elid("flight-number").value;
       // Write transaction
       contract.fetchFlightStatus(flight, (error, result) => {
         display("Oracles", "Trigger oracles", [
@@ -24,6 +24,65 @@ import "./flightsurety.css";
             label: "Fetch Flight Status",
             error: error,
             value: result.flight + " " + result.timestamp,
+          },
+        ]);
+      });
+    });
+
+    DOM.elid("fund").addEventListener("click", () => {
+      const value = DOM.elid("fundAmount").value;
+
+      contract.fundAirline(value, (error, result) => {
+        display("DApp", "Fund", [
+          {
+            label: "Fund",
+            error: error,
+            value: result,
+          },
+        ]);
+      });
+    });
+
+    DOM.elid("buyInsurance").addEventListener("click", () => {
+      const airline = DOM.elid("buyInsuranceAirline").value;
+      const flightCode = DOM.elid("buyInsuranceFlight").value;
+      const value = DOM.elid("buyInsuranceAmount").value;
+
+      contract.buyInsurance(airline, flightCode, value, (error, result) => {
+        display("DApp", "buyInsurance", [
+          {
+            label: "buyInsurance",
+            error: error,
+            value: result,
+          },
+        ]);
+      });
+    });
+    DOM.elid("claimInsurance").addEventListener("click", () => {
+      const airline = DOM.elid("claimInsuranceAirline").value;
+      const flightCode = DOM.elid("claimInsuranceFlight").value;
+
+      contract.claimInsurance(airline, flightCode, (error, result) => {
+        display("DApp", "claimInsurance", [
+          {
+            label: "claimInsurance",
+            error: error,
+            value: result,
+          },
+        ]);
+      });
+    });
+    DOM.elid("payCredit").addEventListener("click", () => {
+      const passenger = DOM.elid("payCreditUser").value;
+      const airline = DOM.elid("payCreditAirline").value;
+      const flightCode = DOM.elid("payCreditFlight").value;
+
+      contract.payCredit(passenger, airline, flightCode, (error, result) => {
+        display("DApp", "payCredit", [
+          {
+            label: "payCredit",
+            error: error,
+            value: result,
           },
         ]);
       });

@@ -54,4 +54,38 @@ export default class Contract {
         callback(error, payload);
       });
   }
+
+  fundAirline(value, callback) {
+    const owner = this.owner;
+    this.flightSuretyApp.methods
+      .fundAirline()
+      .send({ from: owner, value }, (error, result) => {
+        callback(error, result);
+      });
+  }
+
+  buyInsurance(airline, flightCode, value, callback) {
+    const owner = this.owner;
+    this.flightSuretyApp.methods
+      .buyInsurance(airline, flightCode)
+      .send({ from: owner, value }, (error, result) => {
+        callback(error, result);
+      });
+  }
+  claimInsurance(airline, flightCode, callback) {
+    const owner = this.owner;
+    this.flightSuretyApp.methods
+      .claimInsurance(airline, flightCode)
+      .send({ from: owner }, (error, result) => {
+        callback(error, result);
+      });
+  }
+  payCredit(passenger, airline, flightCode, callback) {
+    const owner = this.owner;
+    this.flightSuretyApp.methods
+      .refundInsurance(passenger, airline, flightCode)
+      .send({ from: owner }, (error, result) => {
+        callback(error, result);
+      });
+  }
 }

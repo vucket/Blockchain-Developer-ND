@@ -67,14 +67,46 @@ contract FlightSuretyData {
         _;
     }
 
-    modifier requireInsuranceIsBought(
+    modifier requireInsuranceIsBought(address buyer) {
+        require(
+            insurances[buyer].status == InsuranceStatus.Bought,
+            "Buyer has not bought an insurance"
+        );
+        _;
+    }
+
+    modifier requireInsuranceIsClaimed(address buyer) {
+        require(
+            insurances[buyer].status == InsuranceStatus.Claimed,
+            "Has not claimed the insurance"
+        );
+        _;
+    }
+
+    modifier requireInsuranceIsValid(
         address buyer,
         address airline,
         string memory flightCode
     ) {
         require(
-            isInsuranceActive(buyer, airline, flightCode),
+            isInsuranceValid(buyer, airline, flightCode),
             "Insurance is not active"
+        );
+        _;
+    }
+    modifier requireAirlineHasFunds(address buyer) {
+        uint256 amount = insurances[buyer].amount.mul(15).div(10);
+        require(
+            airlines[insurances[buyer].airline].funds >= amount,
+            "Airline has not enough funds"
+        );
+        _;
+    }
+    modifier requireOwnerHasFunds(address buyer) {
+        uint256 amount = insurances[buyer].amount.mul(15).div(10);
+        require(
+            airlines[insurances[buyer].airline].funds >= amount,
+            "Airline has not enough funds"
         );
         _;
     }
@@ -139,7 +171,7 @@ contract FlightSuretyData {
         operatingAirlinesCount;
     }
 
-    function isInsuranceActive(
+    function isInsuranceValid(
         address buyer,
         address airline,
         string memory flightCode
@@ -246,13 +278,41 @@ contract FlightSuretyData {
     /**
      *  @dev Credits payouts to insurees
      */
-    function creditInsurees() external pure {}
+    function creditInsurees(
+        address buyer,
+        address airline,
+        string calldata flightCode
+    )
+        external
+        payable
+        requireInsuranceIsValid(buyer, airline, flightCode)
+        requireInsuranceIsBought(buyer)
+        requireAirlineHasFunds(buyer)
+    {
+        airlines[airline].funds.sub(insurances[buyer].amount.mul(15).div(10));
+        insurances[buyer].status = InsuranceStatus.Claimed;
+    }
 
     /**
      *  @dev Transfers eligible payout funds to insuree
      *
      */
-    function pay() external pure {}
+    function pay(
+        address payable buyer,
+        address airline,
+        string calldata flightCode
+    )
+        external
+        payable
+        requireInsuranceIsValid(buyer, airline, flightCode)
+        requireInsuranceIsClaimed(buyer)
+        requireOwnerHasFunds(buyer)
+        requireContractOwner
+    {
+        uint256 amount = insurances[buyer].amount.mul(15).div(10);
+        buyer.transfer(amount);
+        insurances[buyer].status = InsuranceStatus.Refunded;
+    }
 
     /**
      * @dev Initial funding for the insurance. Unless there are too many delayed flights

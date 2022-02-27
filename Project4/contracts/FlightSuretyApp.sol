@@ -185,7 +185,9 @@ contract FlightSuretyApp {
 
     event AirlineRegistered(address airlineAddress);
     event AirlineFunded(address airlineAddress, uint256 amount);
-    event InsuranceBought(address airlineAddress, string buyer, uint256 amount);
+    event InsuranceBought(address buyer, string flightCode, uint256 amount);
+    event InsuranceClaimed(address buyer, string flightCode);
+    event InsuranceRefunded(address buyer, string flightCode);
 
     /********************************************************************************************/
     /*                                     SMART CONTRACT FUNCTIONS                             */
@@ -297,6 +299,41 @@ contract FlightSuretyApp {
         contractOwner.transfer(msg.value);
         flightData.buy(msg.sender, airline, flightCode, msg.value);
         emit InsuranceBought(msg.sender, flightCode, msg.value);
+    }
+
+    function claimInsurance(address airline, string calldata flightCode)
+        external
+        payable
+        requireIsOperational
+        requireFlightRegistered(flightCode)
+        requireAirlineHasFlight(airline, flightCode)
+    {
+        require(
+            flights[flightCode].statusCode == STATUS_CODE_LATE_AIRLINE,
+            "Flight is not late because of Airline"
+        );
+        flightData.creditInsurees(msg.sender, airline, flightCode);
+        emit InsuranceClaimed(msg.sender, flightCode);
+    }
+
+    function refundInsurance(
+        address payable buyer,
+        address airline,
+        string calldata flightCode
+    )
+        external
+        payable
+        requireIsOperational
+        requireContractOwner
+        requireFlightRegistered(flightCode)
+        requireAirlineHasFlight(airline, flightCode)
+    {
+        require(
+            flights[flightCode].statusCode == STATUS_CODE_LATE_AIRLINE,
+            "Flight is not late because of Airline"
+        );
+        flightData.pay(buyer, airline, flightCode);
+        emit InsuranceRefunded(buyer, flightCode);
     }
 
     // Generate a request for oracles to fetch flight information
