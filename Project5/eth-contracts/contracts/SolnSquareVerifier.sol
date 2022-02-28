@@ -4,11 +4,10 @@ pragma solidity >=0.4.21 <0.6.0;
 
 import "./ERC721Mintable.sol";
 
-//import "../../zokrates/code/square/verifier.sol";
+import "../../zokrates/code/square/verifier.sol";
 
 // TODO define another contract named SolnSquareVerifier that inherits from your ERC721Mintable class
-// TODO: inherit from verifier
-contract SolnSquareVerifier is MorsaHomeERC721Mintable {
+contract SolnSquareVerifier is MorsaHomeERC721Mintable, Verifier {
     // TODO define a solutions struct that can hold an index & an address
     struct Solution {
         address verifier;
@@ -26,7 +25,11 @@ contract SolnSquareVerifier is MorsaHomeERC721Mintable {
         _;
     }
 
-    function solutionExists(bytes32 solutionKey) internal returns (bool isNew) {
+    function solutionExists(bytes32 solutionKey)
+        internal
+        view
+        returns (bool isNew)
+    {
         isNew = solutions[solutionKey].exists;
     }
 
@@ -53,7 +56,7 @@ contract SolnSquareVerifier is MorsaHomeERC721Mintable {
     ) public {
         bytes32 key = keccak256(abi.encodePacked(a, b, c, inputs));
         require(!solutionExists(key), "Solution exists");
-        //require(verifyTx(a, b, c, inputs), "Invalid proof");
+        require(verifyTx(a, b, c, inputs), "Invalid proof");
         addSolution(key, msg.sender);
         super.mint(to, tokenId);
     }
