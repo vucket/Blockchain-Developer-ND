@@ -62,10 +62,8 @@ contract FlightSuretyApp {
      */
     modifier requireIsOperational() {
         // Modify to call data contract's status
-        require(
-            flightData.isOperational(),
-            "Contract is currently not operational"
-        );
+        bool isOp = flightData.isOperational();
+        require(isOp, "Contract is currently not operational");
         _; // All modifiers require an "_" which indicates where the function body will be added
     }
 
@@ -407,7 +405,11 @@ contract FlightSuretyApp {
         // Require registration fee
         require(msg.value >= REGISTRATION_FEE, "Registration fee is required");
 
-        uint8[3] memory indexes = generateIndexes(msg.sender);
+        uint8[3] memory indexes;
+        indexes[0] = 1;
+        indexes[1] = 2;
+        indexes[2] = 3;
+        //generateIndexes(msg.sender);
 
         oracles[msg.sender] = Oracle({isRegistered: true, indexes: indexes});
     }

@@ -5,11 +5,12 @@ var mnemonic =
 module.exports = {
   networks: {
     development: {
-      provider: function () {
-        return new HDWalletProvider(mnemonic, "http://127.0.0.1:9545/", 0, 50);
-      },
+      // provider: function () {
+      //   return new HDWalletProvider(mnemonic, "http://127.0.0.1:9545/", 0, 50);
+      // },
+      host: "127.0.0.1",
+      port: 9545,
       network_id: "*",
-      gas: 5999999,
     },
   },
 };
