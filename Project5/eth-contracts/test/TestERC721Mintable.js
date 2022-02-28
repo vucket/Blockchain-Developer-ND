@@ -1,6 +1,6 @@
-const ERC721MintableComplete = artifacts.require("MorsaHomeERC721Mintable");
+const MorsaHomeERC721Mintable = artifacts.require("MorsaHomeERC721Mintable");
 
-contract("TestERC721Mintable", (accounts) => {
+contract("MorsaHomeERC721Mintable", (accounts) => {
   const owner = accounts[0];
   const account1 = accounts[1];
   const account2 = accounts[2];
@@ -9,7 +9,7 @@ contract("TestERC721Mintable", (accounts) => {
   describe("match erc721 spec", function () {
     let contract;
     beforeEach(async function () {
-      contract = await ERC721MintableComplete.new({ from: owner });
+      contract = await MorsaHomeERC721Mintable.new({ from: owner });
 
       await contract.mint(account1, 0, { from: owner });
       MAX_TOKEN_ID++;
@@ -48,8 +48,8 @@ contract("TestERC721Mintable", (accounts) => {
       const result = await contract.ownerOf.call(1);
       assert.equal(result, account2);
 
-      await contract.transferFrom(playerOne, playerTwo, tokenIds[2], {
-        from: playerOne,
+      await contract.transferFrom(account1, account2, tokenIds[2], {
+        from: account1,
       });
     });
   });
@@ -57,7 +57,7 @@ contract("TestERC721Mintable", (accounts) => {
   describe("have ownership properties", function () {
     let contract;
     beforeEach(async function () {
-      contract = await ERC721MintableComplete.new({ from: owner });
+      contract = await MorsaHomeERC721Mintable.new({ from: owner });
     });
 
     it("should fail when minting when address is not contract owner", async function () {
@@ -71,7 +71,7 @@ contract("TestERC721Mintable", (accounts) => {
     });
 
     it("should return contract owner", async function () {
-      const result = await this.contract.getOwner.call();
+      const result = await contract.getOwner.call();
       assert.equal(result, owner);
     });
   });

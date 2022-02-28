@@ -34,9 +34,9 @@ contract("SolnSquareVerifier", (accounts) => {
     });
 
     it("should mint token", async () => {
-      await contract.mint(account1, 1, { from: owner });
+      await contract.mint(account1, 7, { from: owner });
       const result = await contract.balanceOf.call(account1);
-      assert.equal(result, 1);
+      assert.equal(result, 2);
     });
   });
 });

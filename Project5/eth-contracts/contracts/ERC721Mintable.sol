@@ -625,7 +625,7 @@ contract MorsaHomeERC721Mintable is ERC721Metadata {
     string private _baseTokenURI =
         "https://s3-us-west-2.amazonaws.com/udacity-blockchain/capstone/";
 
-    constructor() internal ERC721Metadata(_name, _symbol, _baseTokenURI) {}
+    constructor() public ERC721Metadata(_name, _symbol, _baseTokenURI) {}
 
     function mint(address to, uint256 tokenId) public onlyOwner whenNotPaused {
         super._mint(to, tokenId);
