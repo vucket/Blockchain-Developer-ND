@@ -7,6 +7,23 @@ Solidity v0.5.16 (solc-js)
 Node v12.22.9
 Web3.js v1.2.1
 
+## Install
+
+This repository contains Smart Contract code in Solidity (using Truffle), tests (also using Truffle). You need ganache runing in port 9575
+To install, download or clone the repo, then:
+
+`npm install`
+`truffle compile`
+`truffle migrate --reset`
+
+## OpenSea
+
+`truffle test`
+
+## Test
+
+`truffle test`
+
 # Project Resources
 
 * [Remix - Solidity IDE](https://remix.ethereum.org/)
