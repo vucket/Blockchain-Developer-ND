@@ -617,7 +617,7 @@ contract ERC721Metadata is ERC721Enumerable, usingOraclize {
 //      -returns a true boolean upon completion of the function
 //      -calls the superclass mint and setTokenURI functions
 
-contract ERC721Mintable is ERC721Metadata {
+contract MorsaHomeERC721Mintable is ERC721Metadata {
     address private owner;
 
     string private _name = "MorsaHome";
