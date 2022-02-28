@@ -47,10 +47,6 @@ contract("MorsaHomeERC721Mintable", (accounts) => {
       });
       const result = await contract.ownerOf.call(1);
       assert.equal(result, account2);
-
-      await contract.transferFrom(account1, account2, tokenIds[2], {
-        from: account1,
-      });
     });
   });
 
