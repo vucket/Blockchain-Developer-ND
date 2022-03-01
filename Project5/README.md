@@ -9,6 +9,7 @@ The capstone will build upon the knowledge you have gained in the course in orde
 - Verifier address (Rinkeby): 0x2D49ad45B779E7a2658878A6af0f633561d73577
 - SolnSquareVerifier address (Rinkeby):0xCDDC0c2fd299034dB22023FaFA91694A99043e12
 - OpenSea link (Rinkeby): https://testnets.opensea.io/0xf7d9724195befe81592fbbbcb699e14142506083
+- Transfered House: https://testnets.opensea.io/assets/0xcddc0c2fd299034db22023fafa91694a99043e12/5/
 
 ## Install
 
