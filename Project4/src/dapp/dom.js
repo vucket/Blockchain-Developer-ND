@@ -16,7 +16,9 @@ export default class DOM {
   static img = (...args) => DOM.makeElement(`img`, ...args);
   static td = (...args) => DOM.makeElement(`td`, ...args);
   static attributeExceptions = [`role`];
-
+  static flightSelector1 = document.querySelector(`#flightSelector1`);
+  static flightSelector2 = document.querySelector(`#flightSelector2`);
+  static flightSelector3 = document.querySelector(`#flightSelector3`);
   static elid(id) {
     return document.getElementById(id);
   }

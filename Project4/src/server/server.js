@@ -19,8 +19,8 @@ const flightSuretyApp = new web3.eth.Contract(
 );
 const FEE = web3.utils.toWei("1", "ether");
 
-const registerEvents = async () => {
-  await flightSuretyApp.events.OracleRequest((error, event) => {
+const registerEvents = () => {
+  flightSuretyApp.events.OracleRequest(async (error, event) => {
     if (error) console.log(error);
     console.log(event);
     const airline = event.returnValues[1];

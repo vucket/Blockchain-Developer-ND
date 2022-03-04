@@ -14,6 +14,7 @@ export default class Contract {
     this.owner = null;
     this.airlines = [];
     this.passengers = [];
+    this.flights = [];
   }
 
   initialize(callback) {
@@ -25,6 +26,19 @@ export default class Contract {
       while (this.airlines.length < 5) {
         this.airlines.push(accts[counter++]);
       }
+
+      const airline = this.airlines[0];
+      const timestamp = new Date(Date.now() - 100000);
+      this.flights.push({
+        airline: airline,
+        flightCode: "F1",
+        timestamp: timestamp,
+      });
+      this.flights.push({
+        airline: airline,
+        flightCode: "F2",
+        timestamp: timestamp,
+      });
 
       while (this.passengers.length < 5) {
         this.passengers.push(accts[counter++]);
@@ -64,26 +78,26 @@ export default class Contract {
       });
   }
 
-  buyInsurance(airline, flightCode, value, callback) {
+  buyInsurance(flightInfo, value, callback) {
     const owner = this.owner;
     this.flightSuretyApp.methods
-      .buyInsurance(airline, flightCode)
+      .buyInsurance(flightInfo.airline, flightInfo.flightCode)
       .send({ from: owner, value }, (error, result) => {
         callback(error, result);
       });
   }
-  claimInsurance(airline, flightCode, callback) {
+  claimInsurance(flightInfo, callback) {
     const owner = this.owner;
     this.flightSuretyApp.methods
-      .claimInsurance(airline, flightCode)
+      .claimInsurance(flightInfo.airline, flightInfo.flightCode)
       .send({ from: owner }, (error, result) => {
         callback(error, result);
       });
   }
-  payCredit(passenger, airline, flightCode, callback) {
+  payCredit(passenger, flightInfo, callback) {
     const owner = this.owner;
     this.flightSuretyApp.methods
-      .refundInsurance(passenger, airline, flightCode)
+      .refundInsurance(passenger, flightInfo.airline, flightInfo.flightCode)
       .send({ from: owner }, (error, result) => {
         callback(error, result);
       });

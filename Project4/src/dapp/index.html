@@ -39,18 +39,18 @@
         <btn class="btn btn-primary" id="submit-oracle">Submit to Oracles</btn>
       </div>
       <br />
+      <br />
       <h4>Fund my Airline (just airline owner can do this)</h4>
       <div class="row top-20">
         <label class="form">Amount</label> <input type="text" id="fundAmount" />
         <btn class="btn btn-primary" id="fund">Fund my airline</btn>
       </div>
       <br />
+      <br />
       <h4>Buy insurance (Passenger)</h4>
       <div class="top-20">
-        <label class="form">Airline Address</label>
-        <input type="text" id="buyInsuranceAirline" />
-        <label class="form">Flight Code</label>
-        <input type="text" id="buyInsuranceFlight" />
+        <label>Flights</label>
+        <select id="flightSelector1"></select>
         <br />
         <div class="top-20">
           <label class="form">Insurance amount</label>
@@ -58,22 +58,26 @@
           <btn class="btn btn-primary" id="buyInsurance">Buy Insurance</btn>
         </div>
       </div>
+      <br />
+      <br />
       <h4>Claim insurance (Passenger)</h4>
-      <div class="row top-20">
-        <label class="form">Airline Address</label>
-        <input type="text" id="claimInsuranceAirline" />
-        <label class="form">Flight Code</label>
-        <input type="text" id="claimInsuranceFlight" />
-        <btn class="btn btn-primary" id="claimInsurance">Claim Insurance</btn>
+      <div class="top-20">
+        <label>Flights</label>
+        <select id="flightSelector2"></select>
+        <br />
+        <div class="top-20">
+          <input type="text" id="claimInsuranceFlight" />
+          <btn class="btn btn-primary" id="claimInsurance">Claim Insurance</btn>
+        </div>
       </div>
       <h4>Pay passenger (Owner)</h4>
-      <div class="row top-20">
+      <div class="top-20">
         <label class="form">Passenger Address</label>
         <input type="text" id="payCreditUser" />
-        <label class="form">Airline Address</label>
-        <input type="text" id="payCreditAirline" />
-        <label class="form">Flight Code</label>
-        <input type="text" id="payCreditFlight" />
+        <div class="top-20">
+          <label>Flights</label>
+          <select id="flightSelector3"></select>
+        </div>
         <btn class="btn btn-primary" id="payCredit">Pay Insurance</btn>
       </div>
     </main>

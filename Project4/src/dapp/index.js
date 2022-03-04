@@ -12,6 +12,19 @@ import "./flightsurety.css";
       display("Operational Status", "Check if contract is operational", [
         { label: "Operational Status", error: error, value: result },
       ]);
+      const createEl = (flightInfo) => {
+        const el = document.createElement("option");
+        el.text = `${flightInfo.flightCode} - ${new Date(
+          flightInfo.timestamp
+        )}`;
+        el.value = JSON.stringify(flightInfo);
+        return el;
+      };
+      contract.flights.forEach((flightInfo) => {
+        DOM.flightSelector1.add(createEl(flightInfo));
+        DOM.flightSelector2.add(createEl(flightInfo));
+        DOM.flightSelector3.add(createEl(flightInfo));
+      });
     });
 
     // User-submitted transaction
@@ -44,11 +57,10 @@ import "./flightsurety.css";
     });
 
     DOM.elid("buyInsurance").addEventListener("click", () => {
-      const airline = DOM.elid("buyInsuranceAirline").value;
-      const flightCode = DOM.elid("buyInsuranceFlight").value;
+      const flightInfo = JSON.parse(DOM.flightSelector1.value);
       const value = DOM.elid("buyInsuranceAmount").value;
 
-      contract.buyInsurance(airline, flightCode, value, (error, result) => {
+      contract.buyInsurance(flightInfo, value, (error, result) => {
         display("DApp", "buyInsurance", [
           {
             label: "buyInsurance",
@@ -59,10 +71,9 @@ import "./flightsurety.css";
       });
     });
     DOM.elid("claimInsurance").addEventListener("click", () => {
-      const airline = DOM.elid("claimInsuranceAirline").value;
-      const flightCode = DOM.elid("claimInsuranceFlight").value;
+      const flightInfo = JSON.parse(DOM.flightSelector2.value);
 
-      contract.claimInsurance(airline, flightCode, (error, result) => {
+      contract.claimInsurance(flightInfo, (error, result) => {
         display("DApp", "claimInsurance", [
           {
             label: "claimInsurance",
@@ -74,10 +85,9 @@ import "./flightsurety.css";
     });
     DOM.elid("payCredit").addEventListener("click", () => {
       const passenger = DOM.elid("payCreditUser").value;
-      const airline = DOM.elid("payCreditAirline").value;
-      const flightCode = DOM.elid("payCreditFlight").value;
+      const flightInfo = JSON.parse(DOM.flightSelector3.value);
 
-      contract.payCredit(passenger, airline, flightCode, (error, result) => {
+      contract.payCredit(passenger, flightInfo, (error, result) => {
         display("DApp", "payCredit", [
           {
             label: "payCredit",
